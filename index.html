@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh">
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+    <meta name="description" content="蜗壳排课工具-解决课表华容道">
+    <meta name="keywords" content="USTC, 科大, 蜗壳排课工具, 自动排课工具, 辅助排课工具">
+    <title>蜗壳排课工具-解决课表华容道</title>
+    <link rel="icon" href="./icon.svg" type="image/x-icon"/>
+    <link rel="stylesheet" href="layui/css/layui.css">
+    <link rel="stylesheet" href="table.css">
+    <style type="text/css">
+        .ws-header {
+            box-shadow: 0 1px 3px rgb(0 0 0 / 5%)
+        }
+        .ws-bg-light {
+            background-color: white !important
+        }
+        a:link {color:DodgerBlue;}
+        a:visited {color:DodgerBlue;}
+        a:hover {color:Blue;}
+        a:active {color:Blue;}
+        .layui-table-header th{text-align:center;}
+        .layui-table-edit{text-align:center;}
+        .number-input{text-align:center;}
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+    </style>
+    <script>
+        var _hmt=_hmt || [];
+        (function() {
+            var hm=document.createElement("script");
+            hm.src="https://hm.baidu.com/hm.js?3cb9091189f56f2a704a01b5a9fbddb8";
+            var s=document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+</head>
+<body>
+    <ul class="layui-nav layui-nav-child-c layui-bg-gray ws-header ws-bg-light" id="nav" style="display:none;">
+        <li class="layui-nav-item"><a href="https://feixu.site">飞旭</a></li>
+        <li class="layui-nav-item"><a href="https://myustc.feixu.site">我的科大APP</a></li>
+        <li class="layui-nav-item layui-this"><a href="">蜗壳排课工具</a></li>
+        <li class="layui-nav-item"><a href="https://dawu.feixu.site">大雾实验工具</a></li>
+    </ul>
+    <div class="layui-container" style="width:100%;max-width:850px;margin-top:5px;">
+        <div id="main" class="layui-anim layui-anim-downbit">
+            <!-- 主页面 -->
+            <table style="margin:auto;"><tr>
+                <td><img src="./icon.svg" alt="logo" width="50px" style="margin-right:10px;"/></td>
+                <td>
+                    <h1>蜗壳排课工具</h1>
+                    <p style="font-size:large;">解决课表华容道</p>
+                </td>
+            </tr></table>
+            <center id="urlforpc" style="display:none;">电脑端体验更佳 https://paike.feixu.site/</center>
+            <center id="menu" class="layui-anim layui-anim-upbit">
+                <button type="button" class="layui-btn" onclick="importPlan()">导入</button>
+                <button type="button" class="layui-btn" onclick="exportPlan()">导出</button>
+                <button type="button" class="layui-btn layui-bg-blue" onclick="addCourse()">添加课程</button>
+                <button type="button" class="layui-btn layui-bg-blue" onclick="prepare()">开始排课</button>
+                <button type="button" class="layui-btn layui-btn-primary layui-border" onclick="enterSettings()">设置</button>
+            </center>
+            <center id="importFile" class="layui-anim layui-anim-upbit" style="display:none;">
+                <input type="file" class="layui-btn layui-btn-primary" id="fileInput" style="width:250px;">
+                <button type="button" class="layui-btn layui-bg-blue" onclick="upload()">导入</button>
+                <button type="button" class="layui-btn layui-btn-primary layui-border" onclick="cancelImport()">取消</button>
+            </center>
+            <table id="courseList" lay-filter="courseList" style="margin-top:5px;"></table>
+        </div>
+
+        <div id="course" class="layui-anim layui-anim-upbit" style="display:none;">
+            <!-- 添加/编辑课程页面 -->
+            <center><h1 id="subtitle" style="line-height:200%;"></h1></center>
+            <center><p id="semester" style="margin-top:-8px;margin-bottom:1px;"></p></center>
+
+            <center><form id="searchCourse" class="layui-form" lay-filter="searchCourse" style="margin-bottom:5px;">
+                <div class="layui-inline">
+                    <div class="layui-input-inline">
+                        <input type="text" name="code" placeholder="课堂/课程编号" class="layui-input">
+                    </div>
+                    <div class="layui-input-inline">
+                        <input type="text" name="courseName" placeholder="课程名称" class="layui-input">
+                    </div>
+                    <div class="layui-input-inline">
+                        <input type="text" name="teacher" placeholder="授课教师" class="layui-input">
+                    </div>
+                    <div class="layui-input-inline">
+                        <button class="layui-btn layui-bg-blue" lay-submit lay-filter="search" style="width:100px;">搜索</button>
+                    </div>
+                </div>
+            </form></center>
+            <table id="lessonList" lay-filter="lessonList"></table>
+            <center style="margin-top:5px;margin-bottom:5px;">
+                <button type="button" class="layui-btn layui-bg-blue" style="width:100px;" onclick="confirmCourse()">确定</button>
+                <button type="button" class="layui-btn layui-btn-primary layui-border" style="width:100px;" onclick="cancelCourse()">取消</button>
+            </center>
+        </div>
+
+        <div id="settings" class="layui-anim layui-anim-upbit" style="display:none;">
+            <!-- 设置页面 -->
+            <button type="button" class="layui-btn layui-bg-blue" style="width:100px;position:absolute;top:8px;" onclick="backMain()"><i class="layui-icon layui-icon-left"></i>返回&nbsp;&nbsp;</button>
+            <center><h1 style="line-height:200%;">设置</h1></center>
+            <table id="settingsTable" lay-filter="settingsTable"></table>
+        </div>
+
+        <div id="solution" class="layui-anim layui-anim-upbit" style="display:none;">
+            <!-- 排课方案页面 -->
+            <center><h1 style="line-height:200%;">排课方案</h1></center>
+            <button type="button" class="layui-btn layui-bg-blue" style="width:100px;position:absolute;top:8px;" onclick="backMain()"><i class="layui-icon layui-icon-left"></i>返回&nbsp;&nbsp;</button>
+
+            <div id="solutionTab" class="layui-tab layui-tab-brief" lay-filter="solution" style="margin-top:-5px;">
+                <ul class="layui-tab-title"></ul>
+                <div class="layui-tab-content" style="display:none;"></div>
+            </div>
+            <div class="courseTable"></div>
+            <div id="creditDisplay" class="center-text"></div>
+            <table id="mylessonList" lay-filter="mylessonList"></table>
+        </div>
+
+        <center style="line-height:200%;">开发者：<a href='https://github.com/feixukeji/' target='_blank' style='color:Black;'>21-少物-孙旭磊</a> & Brealid & Determinant</center>
+        <center>本项目已开源至 <a href="https://github.com/feixukeji/paike" target="_blank">GitHub</a>，期待你的加入！</center>
+        
+        <center><a href="https://feixu.site" target="_blank">飞旭</a>&nbsp;&nbsp;<a href="https://myustc.feixu.site" target="_blank">我的科大APP</a>&nbsp;&nbsp;<a href="https://dawu.feixu.site" target="_blank">大雾实验工具</a></center>
+
+        <center style="font-size:12px;line-height:250%;">
+            <a href="https://beian.miit.gov.cn/" target="_blank" style="color:#939393;">浙ICP备2022018221号-1</a>
+            <a href="https://beian.mps.gov.cn/#/query/webSearch?code=33028202000901" target="_blank" style="color:#939393;"><img src="beian.png" width="15px"/>浙公网安备33028202000901</a>
+        </center>
+    </div>
+
+    <script type="text/html" id="courseTool">
+        <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+    </script>
+    
+    <script src="layui/layui.js"></script>
+    <script src="jquery.js"></script>
+    <script src="data.js" charset="utf-8"></script>
+    <script src="js.js"></script>
+    <script src="filesaver.js"></script>
+</body>
+</html>
