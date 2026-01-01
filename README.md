@@ -1,6 +1,6 @@
 # 蜗壳排课工具
 
-运行`data.js生成.py`或`data.js生成(from excel).py`（`class.xlsx`从 https://catalog.ustc.edu.cn/query/lesson 下方的“下载当前结果为 Excel”下载）以生成`data.js`。
+运行`data_generator.py`（`class.xlsx`从 https://catalog.ustc.edu.cn/query/lesson 下方的“下载当前结果为 Excel”下载）以生成`data.js`。
 
 ## Contributors
 
